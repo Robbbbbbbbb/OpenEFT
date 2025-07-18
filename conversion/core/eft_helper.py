@@ -139,6 +139,7 @@ class Type2(Record):
         super().__init__("2", idc)
         self.aka = ""
         self.pob = ""
+        self.ctz = ""
         self.dob = ""
         self.race = ""
         self.eye = ""
@@ -164,6 +165,7 @@ class Type2(Record):
         self.ssn = input("Social Security Number (no dashes): ")
         self.addr = input("Address: ")
         self.dob = input("Date of birth (YYYmmdd): ")
+        self.ctz = input("Country of Citizenship (2-letter code, e.g. US, MX): ")
         self.race = input("Race (A=Asian, B=Black, I=American Indian, W=White or Latino): ")
         self.eye = input("Eye Color (BLK,BLU,BRO,GRY,GRN,HAZ,MAR,MUL,PINK): ")
         self.hair = input(
@@ -200,6 +202,7 @@ class Type2(Record):
             "2.018": self.name,
             "2.019": self.aka,
             "2.020": self.stateBorn,
+            "2.021": self.ctz,
             "2.022": self.dob,
             "2.024": self.sex,
             "2.025": self.race,

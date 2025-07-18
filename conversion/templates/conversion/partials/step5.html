@@ -18,6 +18,12 @@
                         {% include "partials/state.html" %}
                     </select>
                 </div>
+				<div class="input-group mb-2">
+					<span class="input-group-text">Citizenship</span>
+					<select class="form-select" name="ctz" id="ctz">
+						{% include "partials/country.html" %}
+					</select>
+				</div>
                 <div class="input-group mb-2">
                     <span class="input-group-text">Date of Birth</span>
                     <input id="dob" type="date" name="dob">

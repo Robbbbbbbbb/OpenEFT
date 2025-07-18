@@ -40,6 +40,7 @@ def generate_eft(data):
     t2.hair = data.get("hair")
     t2.rsn = data.get("rsn")
     t2.amp = data.get("missing")
+    t2.ctz = data.get("ctz")
     t2.name = "{}, {} {}".format(t2.lname, t2.fname, t2.mname[0])
     # Attach
     t1.add_record(t2)

@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  openeft:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: openeft
+    volumes:
+      - .:/root/OpenEFT                # Mount project code for live editing
+      - ./static/tmp_fps:/root/OpenEFT/static/tmp_fps
+      - ./static/tmp_efts:/root/OpenEFT/static/tmp_efts
+    ports:
+      - "8080:8080"
+    stdin_open: true
+    tty: true
+    command: >
+      /bin/bash -c "
+      make -C /root/OpenEFT/nbis/an2k config &&
+      make -C /root/OpenEFT/nbis/an2k it &&
+      python3 /root/OpenEFT/openeft.py || tail -f /dev/null
+      "

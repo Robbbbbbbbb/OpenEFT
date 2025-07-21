@@ -35,6 +35,12 @@ case :$PATH:
      *) echo 'export PATH="$HOME/OpenEFT/nbis/nfiq/bin:$PATH"' >> ~/.bashrc #it's missing, add to PATH
 esac
 
+echo "Checking an2k binaries paths"
+case :$PATH: in
+  *:$HOME/OpenEFT/nbis/an2k/bin:*) ;;
+  *) echo 'export PATH="$HOME/OpenEFT/nbis/an2k/bin:$PATH"' >> ~/.bashrc ;;
+esac
+
 # Install the necessary tools
 echo "Installing LibOpenJP2-Tools"
 sudo apt-get install libopenjp2-tools -y

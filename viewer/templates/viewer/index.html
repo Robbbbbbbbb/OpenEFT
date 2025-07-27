@@ -1,38 +1,199 @@
 {% extends 'base.html' %}
-{% block Title %}OpenEFT | Home{% endblock %}
+{% load static %}
+{% load viewer_extras %}
+{% block Title %}OpenEFT | Viewer{% endblock %}
 {% block content %}
 <br />
-	<div class="text-center mt-5">
-		The Viewer is not currently functional. There is an identified issue with the integration with the an2ktool binary of the NIST Biometric Image Software (NBIS) that underpins this software.<p>It will be fixed in a future release.<p><strong>Please use <a href=https://www.netxsolutions.co.uk/nistviewer.aspx target=_blank>NIST Viewer</a> instead.</strong>
-		<p>
-	</div>
 <div class="content" id="main-content">
     <div class="card bg-dark">
         <div class="card-header">
             {% if fname %}
-            <h1>{{fname}}</h1>
-            {% endif %}<br/>
-            <form id="open" action="/view" method="POST" enctype="multipart/form-data">
+                <h1 class="text-white">
+                    {{ fname }}
+                    {% if mode %}
+                        <span class="badge {% if mode == 'VIEW_ONLY' %}bg-info{% else %}bg-warning{% endif %} ms-2">
+                            {% if mode == 'VIEW_ONLY' %}VIEW ONLY{% else %}ADVANCE{% endif %}
+                        </span>
+                    {% endif %}
+                </h1>
+            {% endif %}
+            <form id="open" action="/view" method="POST" enctype="multipart/form-data" class="mt-3">
                 {% csrf_token %}
-                <label>Open EFT File</label>
-                <input type="file" id="eft" name="eft" onchange="document.getElementById('open').submit();" accept=".eft">
+                <label class="text-white">Open EFT File</label>
+                <div class="input-group mb-3">
+                    <input type="file" id="eft" name="eftfile" accept=".eft" class="form-control">
+                </div>
+                
+                <!-- Mode Selection -->
+                <div class="mb-3">
+                    <label class="text-white">Select Mode:</label>
+                    <div class="form-check form-check-inline ms-3">
+                        <input class="form-check-input" type="radio" name="mode" id="viewOnlyMode" value="VIEW_ONLY" checked>
+                        <label class="form-check-label text-white" for="viewOnlyMode">
+                            <i class="fas fa-eye"></i> View Only
+                        </label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="mode" id="advanceMode" value="ADVANCE">
+                        <label class="form-check-label text-white" for="advanceMode">
+                            <i class="fas fa-edit"></i> Advance (Allow Editing)
+                        </label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-upload"></i> Upload & Process
+                </button>
             </form>
         </div>
-        <div class="card-body bg-dark">
-            {% if data %}
-            <div class="list-group">
-                {% for key, value in data.items %}
-                <div class="list-group-item bg-secondary">
-                    <div class="row">
-                    <div class="col-3">{{ key|get_item }}:</div>
-                    <div class="col">{{ value }}</div>
-                    <div class="col"></div>
+        <div class="card-body bg-dark text-white">
+            {% if error %}
+            <div class="alert alert-danger mt-3" role="alert">
+                <i class="fas fa-exclamation-triangle"></i> {{ error }}
+            </div>
+            {% endif %}
+
+            {% if output %}
+            <div class="mt-3">
+                <button class="btn btn-outline-secondary mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#rawOutput" aria-expanded="false" aria-controls="rawOutput">
+                    <i class="fas fa-code"></i> Show Raw an2ktool Output
+                </button>
+                <div class="collapse" id="rawOutput">
+                    <div class="alert alert-secondary" role="alert">
+                        <pre class="bg-dark text-white p-3" style="white-space: pre-wrap; font-size: 0.9rem;">{{ output }}</pre>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if images %}
+            <h3><i class="fas fa-fingerprint"></i> Fingerprints</h3>
+            <div class="row">
+                {% for label, path in images.items %}
+                <div class="col text-center mb-3">
+                    <div class="card bg-secondary">
+                        <div class="card-header">
+                            <strong>{{ label }}</strong>
+                        </div>
+                        <div class="card-body">
+                            <img src="/{{ path }}" alt="{{ label }}" style="max-width: 300px;" class="img-thumbnail bg-white">
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
             </div>
             {% endif %}
+
+            {% if display_fields %}
+            <h3>
+                <i class="fas fa-user"></i> Type-2 Fields
+                {% if is_view_only %}
+                    <span class="badge bg-info ms-2">Read Only</span>
+                {% elif is_advance %}
+                    <span class="badge bg-warning ms-2">Editable</span>
+                {% endif %}
+            </h3>
+
+            {% if is_view_only %}
+                <!-- VIEW ONLY MODE: Display fields as read-only -->
+                <div class="row">
+                    {% for key, label in display_fields.items %}
+                        {% if raw_fields|get_item:key %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card bg-secondary">
+                                <div class="card-body">
+                                    <h6 class="card-title text-info">{{ label }} ({{ key }})</h6>
+                                    <p class="card-text">{{ raw_fields|get_item:key|default:"Not Available" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                
+                <div class="alert alert-info mt-3" role="alert">
+                    <i class="fas fa-info-circle"></i> <strong>View Only Mode:</strong> You are viewing the EFT file in read-only mode. To edit fields, upload the file again and select "Advance" mode.
+                </div>
+
+            {% elif is_advance %}
+                <!-- ADVANCE MODE: Display fields as editable form -->
+                <form method="POST" action="{% url 'viewer:save_edited_eft' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="original_path" value="{{ original_path }}">
+                    <input type="hidden" name="mode" value="{{ mode }}">
+
+                    {% for key, label in display_fields.items %}
+                        <div class="mb-3 row">
+                            <label class="col-sm-3 col-form-label">
+                                <strong>{{ label }}</strong><br>
+                                <small class="text-muted">({{ key }})</small>
+                            </label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" name="{{ key }}" value="{{ raw_fields|get_item:key }}" placeholder="Enter {{ label }}">
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-save"></i> Save & Export EFT
+                        </button>
+                    </div>
+                </form>
+
+                <div class="alert alert-warning mt-3" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i> <strong>Advance Mode:</strong> You can edit the Type-2 fields above. Click "Save & Export EFT" to download the modified file.
+                </div>
+            {% endif %}
+            {% endif %}
         </div>
     </div>
 </div>
+
+<script>
+    function toggleEditable(index) {
+        const input = document.getElementById("field-" + index);
+        input.readOnly = !input.readOnly;
+        if (input.readOnly) {
+            input.classList.remove("bg-warning");
+        } else {
+            input.classList.add("bg-warning");
+        }
+    }
+
+    // Add some visual feedback for mode selection
+    document.addEventListener('DOMContentLoaded', function() {
+        const viewOnlyRadio = document.getElementById('viewOnlyMode');
+        const advanceRadio = document.getElementById('advanceMode');
+        
+        function updateModeDescription() {
+            const modeDescription = document.getElementById('modeDescription');
+            if (modeDescription) {
+                if (viewOnlyRadio.checked) {
+                    modeDescription.innerHTML = '<i class="fas fa-eye text-info"></i> View Only: Display EFT contents and images without editing capabilities.';
+                    modeDescription.className = 'text-info small mt-2';
+                } else if (advanceRadio.checked) {
+                    modeDescription.innerHTML = '<i class="fas fa-edit text-warning"></i> Advance: Allow editing of Type-2 fields and export modified EFT files.';
+                    modeDescription.className = 'text-warning small mt-2';
+                }
+            }
+        }
+        
+        // Create mode description element if it doesn't exist
+        if (!document.getElementById('modeDescription')) {
+            const modeDiv = document.querySelector('.mb-3:has(input[name="mode"])');
+            if (modeDiv) {
+                const descDiv = document.createElement('div');
+                descDiv.id = 'modeDescription';
+                modeDiv.appendChild(descDiv);
+            }
+        }
+        
+        viewOnlyRadio.addEventListener('change', updateModeDescription);
+        advanceRadio.addEventListener('change', updateModeDescription);
+        
+        // Initial update
+        updateModeDescription();
+    });
+</script>
 {% endblock %}

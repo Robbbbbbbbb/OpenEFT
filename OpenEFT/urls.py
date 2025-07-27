@@ -19,6 +19,6 @@ from django.urls import include, path
 urlpatterns = [
     path('', include('conversion.urls')),
     path('', include('about.urls')),
-    path('', include('viewer.urls')),
+    path('', include(('viewer.urls', 'viewer'), namespace='viewer')),
     path('admin/', admin.site.urls),
 ]

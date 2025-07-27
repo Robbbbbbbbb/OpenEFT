@@ -2,7 +2,7 @@
 
 ## About
 
-OpenEFT is an open-source program created to allow anyone to generate ~~edit, and correct~~ their own .EFT files for use with the ATF's eForm application.
+OpenEFT is an open-source program created to allow anyone to generate, view, edit, and correct their own .EFT files for use with the ATF's eForm application.
 
 ----
 

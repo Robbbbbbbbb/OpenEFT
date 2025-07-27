@@ -1,4 +1,15 @@
 ##### Changelog:
+###### 2025/07/27 - 0.7.0 - Deviant Dingo
+- It's finally feature complete!
+	- OpenEFT will now allow you to create, view, and edit your own EFTs. No more needing to use third-party apps or completely regenerate to fix a tiny error.
+	- Biggest overhaul since first major release.
+	- EFT viewer has both View-Only and Advance modes.
+		- View only does just that; lets you view your EFT's raw values, but only the ones you need to worry about
+		- Advance mode allows you to edit the raw data. Be super careful with this, as editing outside of the correct/expected parameters will cause a validation failure.
+	- One customer reported that SilencerCentral wouldn't accept EFTs without the country of citizenship included (even though the ATF has approved thousands of submissions with OpenEFT-generated prints)
+		- I've added this as a field in the EFT generation step, and an editable field you can change in Advance Edit mode
+	- Modified country code table to perform certain corrections (and place US on top of list for easy CTZ selection)
+
 ###### 2024/11/30 - 0.6.0 - Curious Cassowary
 - Updated \conversion\core\fingerprint.py
 	- Major overhaul

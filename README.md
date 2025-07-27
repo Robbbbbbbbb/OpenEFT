@@ -4,7 +4,7 @@
 
 If you're here, you probably need to file a Form 1 or Form 4 and would like to use your electronic fingerprints! Welcome to the future, old man.
 
-OpenEFT is an open-source project originally created by Noah Wood. Its purpose is to convert physical FD-258 fingerprint cards to EBTS-packaged, EFT-formatted files.
+OpenEFT is an open-source project originally created by Noah Wood. Its purpose is to convert physical FD-258 fingerprint cards to EBTS-packaged, EFT-formatted files. It now has the ability to create, view, and edit EFTs all from your web browser!
 
 ### Why the heck is there another version of this?
 
@@ -72,14 +72,12 @@ Open `CMD` and navigate to `%userprofile%\Downloads`
 Run the following command to build the Docker image
 
 ```sh
-docker build -t openeft-0.4.0 .
+docker build -t openeft .
 ```
-Note that 0.4.0 is the version when this guide was published. You can name it `openeft` if you don't care about versioning.
-
 Run the Docker image and expose it to TCP/8080:
 
 ```sh
-docker run -p 8080:8080 openeft-0.4.0
+docker run -p 8080:8080 openeft
 ```
 
 #### If Linux

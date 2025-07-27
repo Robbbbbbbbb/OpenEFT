@@ -1,9 +1,6 @@
 # Base image
 FROM ubuntu:20.04
 
-# Expose port 8080
-EXPOSE 8080
-
 # Disable interactive prompts during package installation
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -46,7 +43,8 @@ RUN mkdir /root/build && \
 
 # Add NBIS binaries to PATH
 RUN echo 'export PATH="/root/OpenEFT/nbis/nfseg/bin:$PATH"' >> ~/.bashrc && \
-    echo 'export PATH="/root/OpenEFT/nbis/nfiq/bin:$PATH"' >> ~/.bashrc
+    echo 'export PATH="/root/OpenEFT/nbis/nfiq/bin:$PATH"' >> ~/.bashrc && \
+	echo 'export PATH="/root/OpenEFT/nbis/an2k/bin:$PATH"' >> ~/.bashrc
 
 # Install Python dependencies from the requirements.txt in the OpenEFT repo
 RUN pip3 install -r requirements.txt
@@ -54,8 +52,20 @@ RUN pip3 install -r requirements.txt
 # Run Django migrations
 RUN python3 manage.py migrate
 
+# Compile an2ktool during build
+WORKDIR /root/OpenEFT/nbis/an2k
+RUN make config && make it
+
+# Set working directory back to OpenEFT since an2ktool is compiled in order
+WORKDIR /root/OpenEFT
+
 # Run the build_linux.sh script
 RUN chmod +x build_docker.sh && ./build_docker.sh
 
-# Set the default command to run the application
-CMD ["python3", "openeft.py"]
+# Expose Django port
+EXPOSE 8080
+
+# Start OpenEFT, fallback to tail if it crashes
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+CMD ["/entrypoint.sh"]

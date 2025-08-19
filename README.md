@@ -12,7 +12,7 @@ Well, the original software appears to be abandoned (the dev's Reddit account wa
 
 ## How To Use
 
-1. Print an FD-258 card (use <a href=fd-258-110120.pdf>this file</a> for a fillable card)
+1. Print an FD-258 card (use <a href=https://github.com/Robbbbbbbbb/OpenEFT/blob/main/static/fd-258printable.pdf>this file</a> for a fillable card)
 
 2. Roll your prints on the card (you don't need to fill out the boxes)
   - **There is no need to fill out your personally identifiable information**

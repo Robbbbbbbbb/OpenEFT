@@ -1,8 +1,8 @@
 # OpenEFT is Superceded!
 ## Please use EFT Suite instead
 
-* **EFT Suite**: <a href="https://github.com/Robbbbbbbbb/EFTSuite-Public" "_blank">Click Here</a>
-* **NFA Suite (iOS)**: <a href="https://nfasuite.com" "_blank">Click Here</a>
+* **EFT Suite**: <a href=https://github.com/Robbbbbbbbb/EFTSuite-Public>Click Here</a>
+* **NFA Suite (iOS)**: <a href=https://nfasuite.com>Click Here</a>
 
 ----
 Old version below...
